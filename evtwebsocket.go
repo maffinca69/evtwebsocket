@@ -53,7 +53,7 @@ func (c *Conn) Dial(url, subprotocol string) error {
 		defer c.close()
 
 		for {
-			var msg = make([]byte, 500000)
+			var msg []byte
 			var n int
 			if n, err = c.ws.Read(msg); err != nil {
 				if c.OnError != nil {
