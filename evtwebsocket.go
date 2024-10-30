@@ -39,7 +39,7 @@ func (c *Conn) Dial(url, subprotocol string) error {
 	c.url = url
 	c.subprotocol = subprotocol
 	c.msgQueue = []Msg{}
-	c.RemoveMsgFromQueue = false
+	c.RemoveMsgFromQueue = true
 	var err error
 	c.ws, err = websocket.Dial(url, subprotocol, "http://localhost/")
 	if err != nil {
