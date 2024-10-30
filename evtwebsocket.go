@@ -139,7 +139,7 @@ func (c *Conn) setupPing() {
 					time.Sleep(time.Millisecond * 100)
 					continue
 				}
-				if c.Send(Msg{c.PingMsg, nil}) != nil {
+				if c.Send(Msg{c.PingMsg, nil, true}) != nil {
 					return
 				}
 				c.pingTimer = time.Now().Add(time.Second * time.Duration(c.PingIntervalSecs))
