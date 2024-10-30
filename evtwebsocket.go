@@ -2,26 +2,26 @@ package evtwebsocket
 
 import (
 	"errors"
-	"time"
-
 	"golang.org/x/net/websocket"
+	"time"
 )
 
 // Conn is the connection structure.
 type Conn struct {
-	OnMessage        func([]byte, *Conn)
-	OnError          func(error)
-	OnConnected      func(*Conn)
-	MatchMsg         func([]byte, []byte) bool
-	Reconnect        bool
-	PingMsg          []byte
-	PingIntervalSecs int
-	ws               *websocket.Conn
-	url              string
-	subprotocol      string
-	closed           bool
-	msgQueue         []Msg
-	pingTimer        time.Time
+	OnMessage          func([]byte, *Conn)
+	OnError            func(error)
+	OnConnected        func(*Conn)
+	MatchMsg           func([]byte, []byte) bool
+	Reconnect          bool
+	RemoveMsgFromQueue bool
+	PingMsg            []byte
+	PingIntervalSecs   int
+	ws                 *websocket.Conn
+	url                string
+	subprotocol        string
+	closed             bool
+	msgQueue           []Msg
+	pingTimer          time.Time
 }
 
 // Msg is the message structure.
@@ -39,6 +39,7 @@ func (c *Conn) Dial(url, subprotocol string) error {
 	c.url = url
 	c.subprotocol = subprotocol
 	c.msgQueue = []Msg{}
+	c.RemoveMsgFromQueue = false
 	var err error
 	c.ws, err = websocket.Dial(url, subprotocol, "http://localhost/")
 	if err != nil {
@@ -104,7 +105,9 @@ func (c *Conn) onMsg(msg []byte) {
 			if m.Callback != nil && c.MatchMsg(msg, m.Body) {
 				go m.Callback(msg, c)
 				// Delete this element from the queue
-				c.msgQueue = append(c.msgQueue[:i], c.msgQueue[i+1:]...)
+				if c.RemoveMsgFromQueue {
+					c.msgQueue = append(c.msgQueue[:i], c.msgQueue[i+1:]...)
+				}
 				break
 			}
 		}
